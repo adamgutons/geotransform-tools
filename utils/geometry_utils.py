@@ -39,15 +39,6 @@ def get_line_from_point_list(point_list: list, spatial_reference: osr.SpatialRef
 
 
 def feet_to_meters(feet):
-    """
-    See https://geodesy.noaa.gov/faq.shtml#Feet
-    Converts feet to meters
-    Args:
-        feet: int
-
-    Returns: feet converted to meters
-
-    """
     return float(feet) / 3.280833333
 
 

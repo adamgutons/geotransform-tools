@@ -27,7 +27,6 @@ class GeometryTransformer:
             self.reproject_with_transform(geometry)
 
     def reproject(self, geometry: BaseGeometry) -> None:
-        # simple coordinate re-projection, no named transformation
         geometry.geometry.TransformTo(self.spatial_reference)
 
     def reproject_with_transform(self, geometry):
