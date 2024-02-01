@@ -12,16 +12,6 @@ ogr.UseExceptions()
 
 
 def position_along_line(measure, line_geom):
-    """
-    Create a point at a position along the input line based on a measure percentage value.  Values should be in the
-    range of 0.0 to 1.0
-    Args:
-        measure: float
-        line_geom: ogr Geometry object (pass in from LineGeometry self instance)
-
-    Returns: PointGeometry
-
-    """
     dist = line_geom.Length() * measure
     return_point = line_geom.Value(dist)
     return_point_geometry = PointGeometry(coordinates=return_point.GetPoints())
@@ -30,16 +20,6 @@ def position_along_line(measure, line_geom):
 
 def segment_along_line(start_measure: float, end_measure: float, line_geom: shapely.LineString,
                        spatial_reference: osr.SpatialReference) -> LineGeometry:
-    """
-    Create a segment along the input line based on start/end percentage values 0-100% (values should be in the
-    range of 0.0 to 1.0).
-    Args:
-        start_measure: float
-        end_measure: float
-        line_geom: shapely LineString class
-        spatial_reference: osr.SpatialReference
-    Returns: LineGeometry object
-    """
     start_distance = line_geom.length * start_measure
     end_distance = line_geom.length * end_measure
     shapely_segment = substring(line_geom, start_dist=start_distance, end_dist=end_distance)
@@ -49,14 +29,6 @@ def segment_along_line(start_measure: float, end_measure: float, line_geom: shap
 
 
 def get_line_from_point_list(point_list: list, spatial_reference: osr.SpatialReference) -> LineGeometry:
-    """
-    Create a LineGeometry from a list of point coordinates
-    Args:
-        point_list: container of coordinate pairs i.e. list of lists
-        spatial_reference: osr.SpatialReference
-    Returns:
-        line_geometry: LineGeometry object
-    """
     line_geometry = LineGeometry()
     line = ogr.Geometry(ogr.wkbLineString)
     for point in point_list:
@@ -80,11 +52,6 @@ def feet_to_meters(feet):
 
 
 def to_shapely(geometry_object, geom_type):
-    """
-    Convert ogr geometry to shapely geometry class
-    Returns: shapely Point, LineString,
-
-    """
     shapely_geometry = None
     if geom_type == "point":
         shapely_geometry = shapely.geometry.Point(geometry_object.GetX(), geometry_object.GetY())
@@ -98,14 +65,6 @@ def to_shapely(geometry_object, geom_type):
 
 
 def get_coordinates(geom_json):
-    """
-    Parses the geom_json coordinates and attaches them as an attribute to BaseGeometry
-    Args:
-        geom_json: a single dict or list of geometry dicts returned from the api, a list of geometry dicts
-                    indicates an api string
-    Returns: coordinates, a list of lists, each list containing a coordinate pair
-
-    """
     if geom_json is None:
         return
     coordinates = []
@@ -124,14 +83,6 @@ def get_coordinates(geom_json):
 
 
 def srs_from_epsg(epsg_code: int) -> osr.SpatialReference:
-    """
-    Create a spatial reference system from a valid EPSG code.  Raises an error if an invalid EPSG is used
-    Args:
-        epsg_code: int
-
-    Returns: osr.SpatialReference object
-
-    """
     if not isinstance(epsg_code, int):
         epsg_code = int(epsg_code)
     srs = osr.SpatialReference()
@@ -143,18 +94,6 @@ def srs_from_epsg(epsg_code: int) -> osr.SpatialReference:
 
 
 def get_point(geom_json: dict, coordinates: list, spatial_reference: osr.SpatialReference) -> ogr.Geometry:
-    """
-    Creates a wkbPoint ogr.Geometry object
-
-    Args:
-        geom_json: dictionary, the geometry section of the api_json response
-        coordinates: list, lon lat coordinate pair, ie [-82.3775, 35.0806]
-        spatial_reference: ogr.SpatialReference, currently unused.  Plans to allow custom SR assignment to the
-                         PointGeometry geometry
-
-    Returns: return_point, ogr.Geometry point object
-
-    """
     if geom_json and coordinates:
         raise ValueError("Point can not be created from json and input coordinates")
     if geom_json and not coordinates:
@@ -171,15 +110,6 @@ def get_point(geom_json: dict, coordinates: list, spatial_reference: osr.Spatial
 
 
 def get_line(geom_json: dict, spatial_reference: osr.SpatialReference) -> ogr.Geometry:
-    """
-    Create an ogr.Geometry line object from API json dictionary
-    Args:
-        geom_json: list of geometry dicts returned from the api
-        spatial_reference: ogr.SpatialReference, currently unused.  Plans to allow custom SR assignment to the
-            PointGeometry geometry
-    Returns: ogr.LineString geometry
-
-    """
     if geom_json is None:
         pass
     else:
@@ -194,14 +124,6 @@ def get_line(geom_json: dict, spatial_reference: osr.SpatialReference) -> ogr.Ge
 
 
 def get_polygon(coordinates, spatial_reference):
-    """
-    Create an ogr.Geometry wkbPolygon object
-    Args:
-        coordinates: an iterable containing iterables of coordinate pair (long/lat) values
-        spatial_reference: osr.SpatialReference object
-    Returns:
-        polygon = ogr.Geometry ogr.wkbLinearRing
-    """
     ring = ogr.Geometry(ogr.wkbLinearRing)
     for coord in coordinates:
         ring.AddPoint_2D(*coord)

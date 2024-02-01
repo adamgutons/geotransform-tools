@@ -35,7 +35,7 @@ class PointGeometry(BaseGeometry):
     @property
     def JSON(self):
         """
-        Create point ESRI JSON dictionary format.  Over-rides BaseGeometry JSON property
+        Create point ESRI JSON
         """
         ogr_dict = {"x": self.X, "y": self.Y,
                     "spatialReference": {"wkid": self.spatial_reference.GetAuthorityCode(None)}}

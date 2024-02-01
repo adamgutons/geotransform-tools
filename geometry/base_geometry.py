@@ -35,8 +35,7 @@ class BaseGeometry:
     @property
     def JSON(self):
         """
-        Create ESRI geometry JSON.  The BaseGeometry property is inherited for LineGeometry, MultiLineGeometry, and
-        PolygonGeometry classes.  See PointGeometry JSON property for its over-ridden version
+        Create ESRI geometry JSON
         """
         if self.geometry:
             ogr_json = json.loads(self.geometry.ExportToJson())
@@ -47,11 +46,6 @@ class BaseGeometry:
             return json.dumps(json_dict)
 
     def to_shapely(self):
-        """
-        Wrapper for driver.to_shapely, sets a new "shapely" attribute to the class that references the ogr geom.
-        converted to shapely class
-        Returns: shapely geometry class
-        """
         return to_shapely(self.geometry, self.geometry_type)
 
     def to_esri_json(self):

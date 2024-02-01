@@ -5,10 +5,6 @@ from utils.geometry_utils import get_polygon
 
 
 class PolygonGeometry(BaseGeometry):
-    """
-    Currently a loose container for ogr.LinearRing (Polygon) geometry, "loose" meaning not all functionality has
-    been built. geom_json constructor argument currently not supported
-    """
     geometry_type = "polygon"
     type = "polygon"
 
@@ -22,18 +18,13 @@ class PolygonGeometry(BaseGeometry):
 
     @property
     def points(self):
-        """
-        must access polygon coordinates via the geometry rings.  currently will only report the first ring for multi
-        polygons
-        """
         if self.geometry:
             return self.geometry.GetGeometryRef(0).GetPoints()
 
     @property
     def JSON(self):
         """
-        Create ESRI geometry JSON.  The BaseGeometry property is inherited for LineGeometry, MultiLineGeometry, and
-        PolygonGeometry classes.  See PointGeometry JSON property for its over-ridden version
+        Create ESRI geometry JSON.
         """
         if self.geometry:
             ogr_json = json.loads(self.geometry.ExportToJson())
