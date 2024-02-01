@@ -59,13 +59,11 @@ def get_coordinates(geom_json):
     if geom_json is None:
         return
     coordinates = []
-    # if api line
     if isinstance(geom_json, list):
         for point in geom_json:
             longitude = point['longitude']
             latitude = point['latitude']
             coordinates.append([longitude, latitude])
-    # if api point
     else:
         longitude = geom_json['longitude']
         latitude = geom_json['latitude']
@@ -93,7 +91,6 @@ def get_point(geom_json: dict, coordinates: list, spatial_reference: osr.Spatial
         return_point.AddPoint_2D(geom_json["longitude"], geom_json["latitude"])
         return return_point
     if coordinates and not geom_json:
-        # create a point in default spatial reference
         return_point = ogr.Geometry(ogr.wkbPoint)
         return_point.AssignSpatialReference(spatial_reference)
         return_point.AddPoint_2D(coordinates[0], coordinates[1])
