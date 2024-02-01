@@ -1,7 +1,7 @@
 from osgeo import ogr
 
 from base_geometry import BaseGeometry
-from geometry_driver import get_line, position_along_line, segment_along_line
+from utils.geometry_utils import get_line, position_along_line, segment_along_line
 
 
 class LineGeometry(BaseGeometry):

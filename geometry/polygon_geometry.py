@@ -1,7 +1,7 @@
 import json
 
 from base_geometry import BaseGeometry
-from geometry_driver import get_polygon
+from utils.geometry_utils import get_polygon
 
 
 class PolygonGeometry(BaseGeometry):

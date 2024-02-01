@@ -1,6 +1,6 @@
 import json
 
-from geometry_driver import get_coordinates, to_shapely
+from utils.geometry_utils import get_coordinates, to_shapely
 
 
 class BaseGeometry:

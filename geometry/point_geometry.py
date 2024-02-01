@@ -1,7 +1,7 @@
 import json
 
 from base_geometry import BaseGeometry
-from geometry_driver import get_point
+from utils.geometry_utils import get_point
 
 
 class PointGeometry(BaseGeometry):
