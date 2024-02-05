@@ -21,19 +21,19 @@ class PointGeometry(BaseGeometry):
             self.geometry = get_point(geom_json=geom_json, spatial_reference=spatial_reference)
 
     @property
-    def X(self):
+    def X(self) -> float:
         return self.geometry.GetX()
 
     @property
-    def Y(self):
+    def Y(self) -> float:
         return self.geometry.GetY()
 
     @property
-    def Z(self):
+    def Z(self) -> float:
         return self.geometry.GetZ()
 
     @property
-    def JSON(self):
+    def JSON(self) -> str:
         """
         Create point ESRI JSON
         """

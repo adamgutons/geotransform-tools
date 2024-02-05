@@ -1,5 +1,6 @@
 import pyproj
 from osgeo import ogr, osr
+from pyproj import Transformer
 from shapely.ops import transform as shapely_transform
 
 from geometry import BaseGeometry, LineGeometry, PointGeometry, PolygonGeometry
@@ -10,10 +11,10 @@ SIMPLE = "SIMPLE"
 
 
 class GeometryTransformer:
-    def __init__(self, spatial_reference_epsg=None, transform_type=SIMPLE, proj_string=False, **kwargs):
-        self.transform_type = transform_type
+    def __init__(self, spatial_reference_epsg=None, proj_string=False, **kwargs):
         self.spatial_reference_epsg = spatial_reference_epsg
         self.proj_string = proj_string
+        self.transform_type = SIMPLE
         if spatial_reference_epsg:
             self.spatial_reference = srs_from_epsg(spatial_reference_epsg)
         if proj_string:
@@ -35,7 +36,7 @@ class GeometryTransformer:
                                 osr_reference=self.spatial_reference)
 
     @classmethod
-    def create_transformation_from_proj_string(cls, proj_string):
+    def create_transformation_from_proj_string(cls, proj_string) -> Transformer:
         try:
             return pyproj.Transformer.from_pipeline(proj_string)
         except Exception:
@@ -43,21 +44,21 @@ class GeometryTransformer:
 
     @classmethod
     def transform_geometry(cls, geometry: BaseGeometry, transformer: pyproj.Transformer,
-                           osr_reference: osr.SpatialReference):
+                           osr_reference: osr.SpatialReference) -> None:
         if isinstance(geometry, PointGeometry):
             new_point = transformer.transform(geometry.X, geometry.Y)
             new_point_geometry = ogr.Geometry(ogr.wkbPoint)
             new_point_geometry.AssignSpatialReference(osr_reference)
             new_point_geometry.AddPoint_2D(*new_point)
             geometry.geometry = new_point_geometry
-        if isinstance(geometry, LineGeometry):
+        elif isinstance(geometry, LineGeometry):
             record_geometry = shapely_transform(transformer.transform, geometry.to_shapely())
             new_line_geometry = ogr.Geometry(ogr.wkbLineString)
             for point in record_geometry.coords:
                 new_line_geometry.AddPoint_2D(*point)
             new_line_geometry.AssignSpatialReference(osr_reference)
             geometry.geometry = new_line_geometry
-        if isinstance(geometry, PolygonGeometry):
+        elif isinstance(geometry, PolygonGeometry):
             record_geometry = shapely_transform(transformer.transform, geometry.to_shapely())
             new_polygon_geometry = get_polygon(record_geometry.exterior.coords, osr_reference)
             geometry.geometry = new_polygon_geometry

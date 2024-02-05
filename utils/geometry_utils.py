@@ -11,7 +11,7 @@ pyproj.network.set_network_enabled(True)
 ogr.UseExceptions()
 
 
-def position_along_line(measure, line_geom):
+def position_along_line(measure: float, line_geom: ogr.Geometry) -> PointGeometry:
     dist = line_geom.Length() * measure
     return_point = line_geom.Value(dist)
     return_point_geometry = PointGeometry(coordinates=return_point.GetPoints())
@@ -38,11 +38,7 @@ def get_line_from_point_list(point_list: list, spatial_reference: osr.SpatialRef
     return line_geometry
 
 
-def feet_to_meters(feet):
-    return float(feet) / 3.280833333
-
-
-def to_shapely(geometry_object, geom_type):
+def to_shapely(geometry_object: ogr.Geometry, geom_type: str) -> shapely.geometry.base.BaseGeometry:
     shapely_geometry = None
     if geom_type == "point":
         shapely_geometry = shapely.geometry.Point(geometry_object.GetX(), geometry_object.GetY())
@@ -55,10 +51,10 @@ def to_shapely(geometry_object, geom_type):
     return shapely_geometry
 
 
-def get_coordinates(geom_json):
-    if geom_json is None:
-        return
+def get_coordinates(geom_json: dict) -> list:
     coordinates = []
+    if geom_json is None:
+        return coordinates
     if isinstance(geom_json, list):
         for point in geom_json:
             longitude = point['longitude']
@@ -111,7 +107,7 @@ def get_line(geom_json: dict, spatial_reference: osr.SpatialReference) -> ogr.Ge
         return line
 
 
-def get_polygon(coordinates, spatial_reference):
+def get_polygon(coordinates: list, spatial_reference: osr.SpatialReference) -> ogr.Geometry:
     ring = ogr.Geometry(ogr.wkbLinearRing)
     for coord in coordinates:
         ring.AddPoint_2D(*coord)

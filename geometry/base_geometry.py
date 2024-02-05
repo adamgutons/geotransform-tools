@@ -1,5 +1,9 @@
 import json
 
+import shapely
+from osgeo import osr
+
+from geometry_transformer import GeometryTransformer
 from utils.geometry_utils import get_coordinates, to_shapely
 
 
@@ -18,22 +22,22 @@ class BaseGeometry:
             self.coordinates = coordinates
 
     @property
-    def spatial_reference(self):
+    def spatial_reference(self) -> osr.SpatialReference:
         if self.geometry:
             return self.geometry.GetSpatialReference()
 
     @property
-    def points(self):
+    def points(self) -> list:
         if self.geometry:
             return self.geometry.GetPoints()
 
     @property
-    def pointCount(self):
+    def pointCount(self) -> int:
         if self.geometry:
             return self.geometry.GetPointCount()
 
     @property
-    def JSON(self):
+    def JSON(self) -> str:
         """
         Create ESRI geometry JSON
         """
@@ -45,11 +49,15 @@ class BaseGeometry:
             }
             return json.dumps(json_dict)
 
-    def to_shapely(self):
+    def to_shapely(self) -> shapely.geometry.base.BaseGeometry:
         return to_shapely(self.geometry, self.geometry_type)
 
     def to_esri_json(self):
         return
+
+    def transform_to(self, epsg: int, proj_str: str = None) -> None:
+        transformer = GeometryTransformer(spatial_reference_epsg=epsg, proj_str=proj_str)
+        transformer.transform(self.geometry)
 
     @spatial_reference.setter
     def spatial_reference(self, value):

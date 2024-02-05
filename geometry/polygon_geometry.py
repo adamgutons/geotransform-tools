@@ -17,12 +17,12 @@ class PolygonGeometry(BaseGeometry):
             self.geometry.FlattenTo2D()
 
     @property
-    def points(self):
+    def points(self) -> list:
         if self.geometry:
             return self.geometry.GetGeometryRef(0).GetPoints()
 
     @property
-    def JSON(self):
+    def JSON(self) -> str:
         """
         Create ESRI geometry JSON.
         """
