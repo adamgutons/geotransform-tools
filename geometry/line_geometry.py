@@ -1,6 +1,7 @@
 from osgeo import ogr
 
 from base_geometry import BaseGeometry
+from point_geometry import PointGeometry
 from utils.geometry_utils import get_line, position_along_line, segment_along_line
 
 
@@ -32,7 +33,7 @@ class LineGeometry(BaseGeometry):
             self.geometry = get_line(geom_json, spatial_reference)
 
     @property
-    def lineType(self):
+    def lineType(self) -> str:
         if self.geometry:
             self._lineType = self.geometry.GetGeometryName()
         else:
@@ -40,25 +41,25 @@ class LineGeometry(BaseGeometry):
         return self._lineType
 
     @property
-    def firstPoint(self):
+    def firstPoint(self) -> float:
         return self.points[0]
 
     @property
-    def lastPoint(self):
+    def lastPoint(self) -> float:
         return self.points[-1]
 
     @property
-    def length(self):
+    def length(self) -> float:
         if self.geometry:
             return self.geometry.Length()
 
     @property
-    def partCount(self):
+    def partCount(self) -> int:
         if self.geometry:
             return self.geometry.GetGeometryCount()
 
-    def segment_along_line(self, start_measure, end_measure):
+    def segment_along_line(self, start_measure, end_measure) -> "LineGeometry":
         return segment_along_line(start_measure, end_measure, self.to_shapely(), self.spatial_reference)
 
-    def position_along_line(self, measure):
+    def position_along_line(self, measure) -> PointGeometry:
         return position_along_line(measure, self.geometry)
