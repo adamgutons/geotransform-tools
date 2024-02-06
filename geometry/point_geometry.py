@@ -1,7 +1,23 @@
 import json
 
-from base_geometry import BaseGeometry
-from utils.geometry_utils import get_point
+from osgeo import ogr, osr
+
+from geometry.base_geometry import BaseGeometry
+
+
+def get_point(geom_json: dict, coordinates: list, spatial_reference: osr.SpatialReference) -> ogr.Geometry:
+    if geom_json and coordinates:
+        raise ValueError("Point can not be created from json and input coordinates")
+    if geom_json and not coordinates:
+        return_point = ogr.Geometry(ogr.wkbPoint)
+        return_point.AssignSpatialReference(spatial_reference)
+        return_point.AddPoint_2D(geom_json["longitude"], geom_json["latitude"])
+        return return_point
+    if coordinates and not geom_json:
+        return_point = ogr.Geometry(ogr.wkbPoint)
+        return_point.AssignSpatialReference(spatial_reference)
+        return_point.AddPoint_2D(coordinates[0], coordinates[1])
+        return return_point
 
 
 class PointGeometry(BaseGeometry):
@@ -12,7 +28,8 @@ class PointGeometry(BaseGeometry):
         BaseGeometry.__init__(self, geom_json, coordinates, spatial_reference)
         # if one coordinate is passed
         if coordinates and len(coordinates) == 1:
-            self.geometry = get_point(coordinates=self.coordinates[0], spatial_reference=spatial_reference)
+            self.geometry = get_point(geom_json=geom_json, coordinates=self.coordinates[0],
+                                      spatial_reference=spatial_reference)
         # empty geometry
         if coordinates is None and geom_json is None:
             self.geometry = None

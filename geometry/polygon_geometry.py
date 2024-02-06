@@ -1,7 +1,19 @@
 import json
 
-from base_geometry import BaseGeometry
-from utils.geometry_utils import get_polygon
+from osgeo import ogr, osr
+
+from geometry.base_geometry import BaseGeometry
+
+
+def get_polygon(coordinates: list, spatial_reference: osr.SpatialReference) -> ogr.Geometry:
+    ring = ogr.Geometry(ogr.wkbLinearRing)
+    for coord in coordinates:
+        ring.AddPoint_2D(*coord)
+    polygon = ogr.Geometry(ogr.wkbPolygon)
+    polygon.AddGeometry(ring)
+    polygon.CloseRings()
+    polygon.AssignSpatialReference(spatial_reference)
+    return polygon
 
 
 class PolygonGeometry(BaseGeometry):

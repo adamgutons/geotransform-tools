@@ -1,8 +1,32 @@
-from osgeo import ogr
+from osgeo import ogr, osr
+from shapely.ops import substring
 
-from base_geometry import BaseGeometry
-from point_geometry import PointGeometry
-from utils.geometry_utils import get_line, position_along_line, segment_along_line
+from geometry.base_geometry import BaseGeometry
+from geometry.point_geometry import PointGeometry, get_point
+
+
+def _get_line_from_point_list(point_list: list, spatial_reference: osr.SpatialReference) -> "LineGeometry":
+    line_geometry = LineGeometry()
+    line = ogr.Geometry(ogr.wkbLineString)
+    for point in point_list:
+        line.AddPoint_2D(point[0], point[1])
+    line.AssignSpatialReference(spatial_reference)
+    line_geometry.geometry = line
+    return line_geometry
+
+
+def get_line(geom_json: dict, spatial_reference: osr.SpatialReference) -> ogr.Geometry:
+    if geom_json is None:
+        pass
+    else:
+        line = ogr.Geometry(ogr.wkbLineString)
+        for point in geom_json:
+            pnt = get_point(point, coordinates=[], spatial_reference=spatial_reference)
+            longitude = pnt.GetX()
+            latitude = pnt.GetY()
+            line.AddPoint_2D(longitude, latitude)
+        line.AssignSpatialReference(spatial_reference)
+        return line
 
 
 class LineGeometry(BaseGeometry):
@@ -59,7 +83,15 @@ class LineGeometry(BaseGeometry):
             return self.geometry.GetGeometryCount()
 
     def segment_along_line(self, start_measure, end_measure) -> "LineGeometry":
-        return segment_along_line(start_measure, end_measure, self.to_shapely(), self.spatial_reference)
+        start_distance = self.length * start_measure
+        end_distance = self.length * end_measure
+        shapely_segment = substring(self.to_shapely(), start_dist=start_distance, end_dist=end_distance)
+        segment_coordinates = list(shapely_segment.coords)
+        line_geometry_segment = _get_line_from_point_list(segment_coordinates, self.geometry.GetSpatialReference())
+        return line_geometry_segment
 
     def position_along_line(self, measure) -> PointGeometry:
-        return position_along_line(measure, self.geometry)
+        dist = self.geometry.Length() * measure
+        return_point = self.geometry.Value(dist)
+        return_point_geometry = PointGeometry(coordinates=return_point.GetPoints())
+        return return_point_geometry

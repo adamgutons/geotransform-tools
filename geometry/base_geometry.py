@@ -4,7 +4,22 @@ import shapely
 from osgeo import osr
 
 from geometry_transformer import GeometryTransformer
-from utils.geometry_utils import get_coordinates, to_shapely
+
+
+def get_coordinates(geom_json: dict) -> list:
+    coordinates = []
+    if geom_json is None:
+        return coordinates
+    if isinstance(geom_json, list):
+        for point in geom_json:
+            longitude = point['longitude']
+            latitude = point['latitude']
+            coordinates.append([longitude, latitude])
+    else:
+        longitude = geom_json['longitude']
+        latitude = geom_json['latitude']
+        coordinates.append([longitude, latitude])
+    return coordinates
 
 
 class BaseGeometry:
@@ -50,14 +65,20 @@ class BaseGeometry:
             return json.dumps(json_dict)
 
     def to_shapely(self) -> shapely.geometry.base.BaseGeometry:
-        return to_shapely(self.geometry, self.geometry_type)
-
-    def to_esri_json(self):
-        return
+        shapely_geometry = None
+        if self.geometry_type == "point":
+            shapely_geometry = shapely.geometry.Point(self.geometry.GetX(), self.geometry.GetY())
+        elif self.geometry_type == "polyline":
+            shapely_geometry = shapely.geometry.LineString(self.geometry.GetPoints())
+        elif self.geometry_type == "polygon":
+            shapely_geometry = shapely.geometry.Polygon(self.geometry.GetGeometryRef(0).GetPoints())
+        else:
+            print("Geometry type not recognized, unable to generate shapely object")
+        return shapely_geometry
 
     def transform_to(self, epsg: int, proj_str: str = None) -> None:
-        transformer = GeometryTransformer(spatial_reference_epsg=epsg, proj_str=proj_str)
-        transformer.transform(self.geometry)
+        geometry_transformer = GeometryTransformer(epsg, proj_str)
+        geometry_transformer.transform(self)
 
     @spatial_reference.setter
     def spatial_reference(self, value):
